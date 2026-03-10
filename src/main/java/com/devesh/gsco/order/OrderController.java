@@ -27,9 +27,9 @@ public class OrderController {
     @PostMapping("/users/{user-id}/create")
     public OrderDto createOrder(
             @PathVariable("user-id") int userId,
-            @RequestBody Order order) {
+            @RequestBody CreateOrderRequest request) {
 
-        return orderService.createOrder(userId, order);
+        return orderService.createOrder(userId, request);
     }
 
     @PatchMapping("/{order-id}/confirm")

@@ -1,16 +1,19 @@
 package com.devesh.gsco.order;
 
+import com.devesh.gsco.orderitem.OrderItemService;
 import com.devesh.gsco.user.User;
 import com.devesh.gsco.user.UserRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.RequestBody;
+
+import java.util.Date;
 
 @AllArgsConstructor
 @Service
 public class OrderService {
     private final OrderRepository orderRepository;
     private final UserRepository userRepository;
+    private final OrderItemService orderItemService;
 
     public OrderDto findOrderByOrderId(int orderId) {
         return convertToDto(orderRepository.findOrderByOrderId(orderId));
@@ -24,12 +27,20 @@ public class OrderService {
         orderRepository.deleteById(orderId);
     }
 
-    public OrderDto createOrder(int userId, Order order) {
+    public OrderDto createOrder(int userId, CreateOrderRequest request) {
 
         User user = userRepository.findById(userId).orElse(null);
 
-        order.setUser(user);
+        Order order = Order.builder()
+                .customerName(request.customerName())
+                .status(request.status())
+                .orderDate(new Date())
+                .user(user)
+                .build();
+
         Order savedOrder = orderRepository.save(order);
+
+        orderItemService.createOrderItems(savedOrder, request.items());
 
         return convertToDto(savedOrder);
     }
@@ -39,7 +50,6 @@ public class OrderService {
                 order.getOrderId(),
                 order.getOrderDate(),
                 order.getCustomerName(),
-                order.getTotalAmount(),
                 order.getStatus(),
                 order.getUser() != null ? order.getUser().getUserId() : null
         );

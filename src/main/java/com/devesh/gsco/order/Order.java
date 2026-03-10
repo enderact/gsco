@@ -1,5 +1,6 @@
 package com.devesh.gsco.order;
 
+import com.devesh.gsco.orderitem.OrderItem;
 import com.devesh.gsco.user.User;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -8,6 +9,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.Date;
+import java.util.List;
 
 @Data
 @NoArgsConstructor
@@ -26,10 +28,12 @@ public class Order {
     private Integer orderId;
     private Date orderDate;
     private String customerName;
-    private double totalAmount;
     private String status; // created, confirmed, shipping, shipped
 
     @ManyToOne
     @JoinColumn(name = "user_id")
     private User user;
+
+    @OneToMany(mappedBy = "order")
+    private List<OrderItem> items;
 }
